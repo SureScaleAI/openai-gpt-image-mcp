@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/surescaleai-openai-gpt-image-mcp-badge.png)](https://mseep.ai/app/surescaleai-openai-gpt-image-mcp)
+
 # openai-gpt-image-mcp
 
 <p align="center">
