@@ -4,9 +4,43 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { OpenAI, toFile } from "openai";
+import { OpenAI, AzureOpenAI, toFile } from "openai";
 import fs from "fs";
 import path from "path";
+
+// Function to load environment variables from a file
+const loadEnvFile = (filePath: string) => {
+  try {
+    const envConfig = fs.readFileSync(filePath, "utf8");
+    envConfig.split("\n").forEach((line) => {
+      const trimmedLine = line.trim();
+      if (trimmedLine && !trimmedLine.startsWith("#")) {
+        const [key, ...valueParts] = trimmedLine.split("=");
+        const value = valueParts.join("=").trim();
+        if (key) {
+          // Remove surrounding quotes if present
+          process.env[key.trim()] = value.startsWith("'") && value.endsWith("'") || value.startsWith("\"") && value.endsWith("\"")
+            ? value.slice(1, -1)
+            : value;
+        }
+      }
+    });
+    console.log(`Loaded environment variables from ${filePath}`);
+  } catch (error) {
+    console.warn(`Warning: Could not read environment file at ${filePath}:`, error);
+  }
+};
+
+// Parse command line arguments for --env-file
+const cmdArgs = process.argv.slice(2);
+const envFileArgIndex = cmdArgs.findIndex(arg => arg === "--env-file");
+if (envFileArgIndex !== -1 && cmdArgs[envFileArgIndex + 1]) {
+  console.log("Loading environment variables from file:", cmdArgs[envFileArgIndex + 1]);
+  const envFilePath = cmdArgs[envFileArgIndex + 1];
+  loadEnvFile(envFilePath);
+} else {
+  console.log("No environment file provided");
+}
 
 (async () => {
   const server = new McpServer({
@@ -60,7 +94,9 @@ import path from "path";
     "create-image",
     (createImageSchema as any)._def.schema.shape,
     async (args, _extra) => {
-      const openai = new OpenAI();
+      // If AZURE_OPENAI_API_KEY is defined, use the AzureOpenAI class
+      const openai = process.env.AZURE_OPENAI_API_KEY ? new AzureOpenAI() : new OpenAI();
+
       // Only allow gpt-image-1
       const {
         prompt,
@@ -217,7 +253,7 @@ import path from "path";
         throw new Error("Invalid 'mask' input: Must be an absolute path or a base64-encoded string.");
       }
 
-      const openai = new OpenAI();
+      const openai = process.env.AZURE_OPENAI_API_KEY ? new AzureOpenAI() : new OpenAI();
       const {
         image: imageInput,
         prompt,
