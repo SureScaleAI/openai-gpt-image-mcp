@@ -53,12 +53,44 @@ Add to Claude Desktop or VSCode (including Cursor/Windsurf) config:
 }
 ```
 
+Also supports Azure deployments:
+
+```json
+{
+  "mcpServers": {
+    "openai-gpt-image-mcp": {
+      "command": "node",
+      "args": ["/absolute/path/to/dist/index.js"],
+      "env": { 
+        "AZURE_OPENAI_API_KEY": "sk-...",
+        "AZURE_OPENAI_ENDPOINT": "my.endpoint.com",
+        "OPENAI_API_VERSION": "2024-12-01-preview"
+      }
+    }
+  }
+}
+```
+
+Also supports supplying an environment files:
+
+```json
+{
+  "mcpServers": {
+    "openai-gpt-image-mcp": {
+      "command": "node",
+      "args": ["/absolute/path/to/dist/index.js", "--env-file", "./deployment/.env"]
+    }
+  }
+}
+```
+
 ---
 
 ## ⚡ Advanced
 
 - For `create-image`, set `n` to generate up to 10 images at once.
 - For `edit-image`, provide a mask image (file path or base64) to control where edits are applied.
+- Provide an environment file with `--env-file path/to/file/.env`
 - See `src/index.ts` for all options.
 
 ---
@@ -111,3 +143,4 @@ MIT
 - Built with [@modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk)
 - Uses [openai](https://www.npmjs.com/package/openai) Node.js SDK 
 - Built by [SureScale.ai](https://surescale.ai)
+- Contributions from [Axle Research and Technology](https://axleinfo.com/)
